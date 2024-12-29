@@ -25,32 +25,78 @@ from flask_validator import ValidateEmail, ValidateString, ValidateInteger
 # Load environment variables
 load_dotenv()
 # At the top of your file after imports
-api_key = "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"
+api_key = "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"
 client = OpenAI(api_key=api_key)
 SECRET_KEY = 'your-secret-key' 
+from functools import wraps
+from flask import request, jsonify
+import jwt
+from typing import Optional
+
 def verify_token(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        auth_header = request.headers.get('Authorization')
+        auth_header: Optional[str] = request.headers.get('Authorization')
+        
+        # Check if Authorization header exists
         if not auth_header:
             return jsonify({'error': 'No token provided'}), 401
-        
-        if auth_header:
-            try:
-                token = auth_header.split('Bearer ')[1]
-            except IndexError:
-                return jsonify({'error': 'Invalid token format'}), 401
 
-        if not token:
-            return jsonify({'error': 'Token is missing'}), 401
+        # Extract token
         try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+            # Remove leading/trailing whitespace and split
+            token_parts = auth_header.strip().split('Bearer ')
+            if len(token_parts) != 2:
+                return jsonify({'error': 'Invalid token format. Expected "Bearer <token>"'}), 401
+            token = token_parts[1].strip()
+        except Exception:
+            return jsonify({'error': 'Invalid token format'}), 401
+
+        # Verify token is not empty after processing
+        if not token:
+            return jsonify({'error': 'Empty token provided'}), 401
+
+        try:
+            # Decode and verify token
+            payload = jwt.decode(
+                token, 
+                SECRET_KEY, 
+                algorithms=['HS256'],
+                options={"verify_exp": True}  # Explicitly verify expiration
+            )
+            
+            # Store user_id in request context
             request.user_id = payload['user_id']
+            
+            # Check for additional claims if needed
+            if 'role' in payload:
+                request.user_role = payload['role']
+                
             return f(*args, **kwargs)
+            
         except jwt.ExpiredSignatureError:
-            return jsonify({'error': 'Token has expired'}), 401
-        except jwt.InvalidTokenError:
-            return jsonify({'error': 'Invalid token'}), 401
+            return jsonify({
+                'error': 'Token has expired',
+                'code': 'token_expired'
+            }), 401
+            
+        except jwt.InvalidTokenError as e:
+            return jsonify({
+                'error': f'Invalid token: {str(e)}',
+                'code': 'token_invalid'
+            }), 401
+            
+        except KeyError:
+            return jsonify({
+                'error': 'Token payload missing required claims',
+                'code': 'token_invalid_claims'
+            }), 401
+            
+        except Exception as e:
+            return jsonify({
+                'error': 'Server error during token verification',
+                'code': 'server_error'
+            }), 500
             
     return decorated_function
 
@@ -156,6 +202,14 @@ class Resource(db.Model):
     deadline = db.Column(db.DateTime, nullable=True)
     duration = db.Column(db.String(100))
     members = db.Column(db.Integer)
+    uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)  # Add this line
+class Funding(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.DateTime, nullable=False)
+    amount = db.Column(db.Float, nullable=False)
+    category = db.Column(db.String(100), nullable=False)
+    project_title = db.Column(db.String(200))
+    description = db.Column(db.Text)
 
 # Error handling decorator
 def handle_errors(f):
@@ -205,7 +259,7 @@ def create_token(user_id):
     """Create a JWT token for the user"""
     payload = {
         'user_id': user_id,
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1)
+        'exp': datetime.utcnow() + timedelta(days=1)  # Use datetime not datetime.datetime
     }
     return jwt.encode(payload, SECRET_KEY, algorithm='HS256')
 
@@ -233,7 +287,7 @@ def test_api_key():
             "api_key_loaded": bool(api_key),
             "api_key_prefix": key_prefix
         })
-@app.route('/api/signup', methods=['POST'])
+@app.route('/api/auth/signup', methods=['POST'])
 @handle_errors
 def signup():
     data = request.get_json()
@@ -329,34 +383,34 @@ def signup():
 #             }
 #         }), 200
 #     return jsonify({"authenticated": False}), 401
-@app.route('/api/login', methods=['POST'])
-def login():
-    try:
-        data = request.get_json()
-        if not data:
-            return jsonify({"error": "No data provided"}), 400
+# @app.route('/api/auth/login', methods=['POST'])
+# def login():
+#     try:
+#         data = request.get_json()
+#         if not data:
+#             return jsonify({"error": "No data provided"}), 400
         
-        if 'email' not in data or 'password' not in data:
-            return jsonify({"error": "Email and password are required"}), 400
+#         if 'email' not in data or 'password' not in data:
+#             return jsonify({"error": "Email and password are required"}), 400
             
-        user = UserProfile.query.filter_by(email=data['email']).first()
+#         user = UserProfile.query.filter_by(email=data['email']).first()
         
-        if user and check_password_hash(user.password, data['password']):
-            token = create_token(user.uid)
-            return jsonify({
-                "message": "Login successful",
-                "token": token,
-                "user": {
-                    "uid": user.uid,
-                    "name": user.name,
-                    "email": user.email
-                }
-            }), 200
+#         if user and check_password_hash(user.password, data['password']):
+#             token = create_token(user.uid)
+#             return jsonify({
+#                 "message": "Login successful",
+#                 "token": token,
+#                 "user": {
+#                     "uid": user.uid,
+#                     "name": user.name,
+#                     "email": user.email
+#                 }
+#             }), 200
         
-        return jsonify({"error": "Invalid credentials"}), 401
+#         return jsonify({"error": "Invalid credentials"}), 401
         
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
 # Existing Endpoints
 from flask import jsonify, request
 from functools import wraps
@@ -497,7 +551,7 @@ def test_simple():
             "type": type(e).__name__
         })
 
-@app.route('/get-advice', methods=['POST'])
+@app.route('/api/get-advice', methods=['POST'])
 @rate_limit(requests=100, window=3600)  # 100 requests per hour
 def get_advice():
     """Generate business advice and optionally translate it"""
@@ -762,7 +816,97 @@ def visualize_funding():
 #     response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
 #     return response
 
+@app.route('/api/auth/verify', methods=['POST','GET'])
+def verify_auth():
+    try:
+        # Get the token from the Authorization header
+        auth_header = request.headers.get('Authorization')
+        if not auth_header:
+            return jsonify({
+                "verified": False,
+                "error": "No token provided"
+            }), 401
 
+        try:
+            # Extract the token from 'Bearer <token>'
+            token = auth_header.split('Bearer ')[1]
+        except IndexError:
+            return jsonify({
+                "verified": False,
+                "error": "Invalid token format"
+            }), 401
+
+        # Verify the token
+        try:
+            # Decode the token using the secret key
+            payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+            user_id = payload['user_id']
+
+            # Find the user in the database
+            user = UserProfile.query.filter_by(uid=user_id).first()
+            if not user:
+                return jsonify({
+                    "verified": False,
+                    "error": "User not found"
+                }), 404
+
+            # Return user information if token is valid
+            return jsonify({
+                "verified": True,
+                "user": {
+                    "uid": user.uid,
+                    "name": user.name,
+                    "email": user.email
+                }
+            }), 200
+
+        except jwt.ExpiredSignatureError:
+            return jsonify({
+                "verified": False,
+                "error": "Token has expired"
+            }), 401
+        except jwt.InvalidTokenError:
+            return jsonify({
+                "verified": False,
+                "error": "Invalid token"
+            }), 401
+
+    except Exception as e:
+        return jsonify({
+            "verified": False,
+            "error": str(e)
+        }), 500
+
+@app.route('/api/auth/login', methods=['POST'])  # Note the path change to match frontend
+def login():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+        
+        if 'email' not in data or 'password' not in data:
+            return jsonify({"error": "Email and password are required"}), 400
+            
+        user = UserProfile.query.filter_by(email=data['email']).first()
+        
+        if user and check_password_hash(user.password, data['password']):
+            token = create_token(user.uid)
+            response = jsonify({
+                "message": "Login successful",
+                "token": token,
+                "user": {
+                    "uid": user.uid,
+                    "name": user.name,
+                    "email": user.email
+                }
+            })
+            return response, 200
+        
+        return jsonify({"error": "Invalid credentials"}), 401
+        
+    except Exception as e:
+        print("Login error:", str(e))  # Debug print
+        return jsonify({"error": str(e)}), 500
 # New endpoints for Dashboard
 @app.route('/api/user/profile', methods=['GET'])
 @verify_token
@@ -782,6 +926,27 @@ def get_user_profile():
         }), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route('/api/auth/logout', methods=['POST'])
+def logout():
+    try:
+        # Assuming you have a token mechanism
+        # Here, you might clear the token from a server-side store or invalidate it
+        token = request.headers.get('Authorization')
+        if not token:
+            return jsonify({"error": "No token provided"}), 400
+        
+        # Example: If tokens are stored in a database or cache, invalidate it here
+        # token_storage.invalidate(token)  # Replace with your logic
+
+        response = jsonify({"message": "Logout successful"})
+        response.set_cookie('token', '', expires=0)  # Clear the token cookie if used
+        return response, 200
+    
+    except Exception as e:
+        print("Logout error:", str(e))  # Debug print
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route('/api/user/achievements', methods=['GET'])
 # @cross_origin()
@@ -817,6 +982,14 @@ def get_courses():
             'link': course.link
         } for course in courses])
     except Exception as e:
+        # Log the actual error
+        app.logger.error(f"Error fetching courses: {str(e)}")
+        # Include the error message in development
+        if app.debug:
+            return jsonify({
+                "error": "Failed to fetch courses",
+                "details": str(e)
+            }), 500
         return jsonify({"error": "Failed to fetch courses"}), 500
 @app.route('/api/insights', methods=['GET'])
 # @cross_origin()
@@ -843,6 +1016,7 @@ def get_categories():
     return jsonify([cat[0] for cat in categories])
 
 @app.route('/api/stats', methods=['GET'])
+@verify_token
 # @cross_origin()
 def get_stats():
     return jsonify({
@@ -852,78 +1026,164 @@ def get_stats():
     })
 
 # New endpoints for Funding Visualization
+# @app.route('/api/funding/statistics', methods=['GET'])
+# # @cross_origin()
+# @verify_token
+# def get_funding_statistics():
+#     time_range = request.args.get('timeRange', '6M')
+#     end_date = datetime.now()
+    
+#     if time_range == '1M':
+#         start_date = end_date - timedelta(days=30)
+#     elif time_range == '3M':
+#         start_date = end_date - timedelta(days=90)
+#     elif time_range == '6M':
+#         start_date = end_date - timedelta(days=180)
+#     else:  # 1Y
+#         start_date = end_date - timedelta(days=365)
+    
+#     funding_resources = Resource.query.filter(
+#         Resource.type == 'funding',
+#         Resource.uploaded_at.between(start_date, end_date)
+#     ).all()
+    
+#     return jsonify({
+#         'fundingResources': [{
+#             'title': r.title,
+#             'amount': float(r.link) if r.link.isdigit() else 0,  # Using link field to store amount temporarily
+#             'status': r.type,
+#             'uploaded_at': r.uploaded_at.isoformat()
+#         } for r in funding_resources]
+#     })
+
+# @app.route('/api/funding/success-stories', methods=['GET'])
+# # @cross_origin()
+# def get_funding_success_stories():
+#     successful_resources = Resource.query.filter_by(
+#         type='funding'
+#     ).order_by(Resource.uploaded_at.desc()).limit(3).all()
+    
+#     return jsonify([{
+#         'title': r.title,
+#         'founder': r.user.name,
+#         'amount': float(r.link) if r.link.isdigit() else 0,
+#         'impact': r.description
+#     } for r in successful_resources])
 @app.route('/api/funding/statistics', methods=['GET'])
-# @cross_origin()
+@verify_token
 def get_funding_statistics():
-    time_range = request.args.get('timeRange', '6M')
-    end_date = datetime.now()
-    
-    if time_range == '1M':
-        start_date = end_date - timedelta(days=30)
-    elif time_range == '3M':
-        start_date = end_date - timedelta(days=90)
-    elif time_range == '6M':
-        start_date = end_date - timedelta(days=180)
-    else:  # 1Y
-        start_date = end_date - timedelta(days=365)
-    
-    funding_resources = Resource.query.filter(
-        Resource.type == 'funding',
-        Resource.uploaded_at.between(start_date, end_date)
-    ).all()
-    
-    return jsonify({
-        'fundingResources': [{
-            'title': r.title,
-            'amount': float(r.link) if r.link.isdigit() else 0,  # Using link field to store amount temporarily
-            'status': r.type,
-            'uploaded_at': r.uploaded_at.isoformat()
-        } for r in funding_resources]
-    })
+    try:
+        time_range = request.args.get('timeRange', '6M')
+        
+        # Calculate the date threshold based on time range
+        today = datetime.utcnow()
+        if time_range == '6M':
+            threshold = today - timedelta(days=180)
+        else:  # 1Y
+            threshold = today - timedelta(days=365)
+        
+        # Query funding data
+        funding_entries = Funding.query.filter(Funding.date >= threshold).all()
+        
+        # Process the data
+        data_points = [{
+            'date': entry.date.strftime('%Y-%m-%d'),
+            'amount': float(entry.amount),
+            'category': entry.category
+        } for entry in funding_entries]
+        
+        # Calculate statistics
+        total_amount = sum(entry.amount for entry in funding_entries)
+        count = len(funding_entries)
+        average = total_amount / count if count > 0 else 0
+        
+        return jsonify({
+            'data_points': data_points,
+            'total_amount': total_amount,
+            'count': count,
+            'average': average
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Error fetching funding statistics: {str(e)}")
+        return jsonify({'error': 'Failed to fetch funding statistics'}), 500
 
 @app.route('/api/funding/success-stories', methods=['GET'])
-# @cross_origin()
-def get_funding_success_stories():
-    successful_resources = Resource.query.filter_by(
-        type='funding'
-    ).order_by(Resource.uploaded_at.desc()).limit(3).all()
-    
-    return jsonify([{
-        'title': r.title,
-        'founder': r.user.name,
-        'amount': float(r.link) if r.link.isdigit() else 0,
-        'impact': r.description
-    } for r in successful_resources])
+@verify_token
+def get_success_stories():
+    try:
+        # Query top successful funding stories
+        stories = Funding.query.order_by(Funding.amount.desc()).limit(5).all()
+        
+        return jsonify([{
+            'id': str(story.id),
+            'title': story.project_title,
+            'description': story.description,
+            'amount': float(story.amount),
+            'date': story.date.strftime('%Y-%m-%d'),
+            'category': story.category
+        } for story in stories])
+        
+    except Exception as e:
+        app.logger.error(f"Error fetching success stories: {str(e)}")
+        return jsonify({'error': 'Failed to fetch success stories'}), 500
 
 @app.route('/api/test', methods=['GET'])
 def test():
     return jsonify({"message": "API is working"}), 200
 
-@app.route('/api/resources', methods=['POST'])
-@handle_errors
-def create_resource():
-    if 'user_id' not in session:
-        return jsonify({"error": "Authentication required"}), 401
+# GET endpoint for resources
+from flask import Flask, request, jsonify
+from functools import wraps
+import jwt
 
-    data = request.get_json()
-    required_fields = ['title', 'link', 'category']
-    
-    if not all(field in data for field in required_fields):
-        return jsonify({"error": "Missing required fields"}), 400
+@app.route('/api/resources', methods=['GET', 'POST'])
+@verify_token
+def handle_resources():
+    if request.method == 'GET':
+        # Handle GET request
+        category = request.args.get('category', '')
+        search = request.args.get('search', '')
+        type = request.args.get('type', '')
+        duration = request.args.get('duration', '')
+        rating = request.args.get('rating', '')
 
-    new_resource = Resource(
-        title=data['title'],
-        link=data['link'],
-        category=data['category'],
-        type=data.get('type', 'general'),
-        description=data.get('description'),
-        user_id=session['user_id']
-    )
+        query = Resource.query
 
-    db.session.add(new_resource)
-    db.session.commit()
-    return jsonify({"message": "Resource created successfully", "id": new_resource.id}), 201
+        if category:
+            query = query.filter(Resource.category == category)
+        if search:
+            query = query.filter(Resource.title.ilike(f'%{search}%'))
+        if type:
+            query = query.filter(Resource.type == type)
+        if duration:
+            query = query.filter(Resource.duration == duration)
+        if rating:
+            query = query.filter(Resource.rating == rating)
 
+        resources = query.all()
+        return jsonify([resource.to_dict() for resource in resources]), 200
+
+    elif request.method == 'POST':
+        # Handle POST request
+        data = request.get_json()
+        required_fields = ['title', 'link', 'category']
+        
+        if not all(field in data for field in required_fields):
+            return jsonify({"error": "Missing required fields"}), 400
+
+        new_resource = Resource(
+            title=data['title'],
+            link=data['link'],
+            category=data['category'],
+            type=data.get('type', 'general'),
+            description=data.get('description'),
+            user_id=request.user_id  # Using user_id from verified token
+        )
+
+        db.session.add(new_resource)
+        db.session.commit()
+        return jsonify({"message": "Resource created successfully", "id": new_resource.id}), 201
 # Database initialization and migration commands
 @app.cli.command("init-db")
 def init_db():
@@ -938,6 +1198,209 @@ def migrate_db():
         migrate.init_app(app, db)
         migrate.upgrade()
     print('Database migrated.')
+
+@app.cli.command("seed-db")
+def seed_db():
+    """Pre-seed the database with initial data."""
+    try:
+        # Create an admin user (if it doesn't already exist)
+        if not UserProfile.query.filter_by(email='admin@example.com').first():
+            admin = UserProfile(
+                uid='admin_uid',
+                name='Admin User',
+                email='admin@example.com',
+                password=generate_password_hash('adminpassword'),  # Hash the password
+                # role='admin',  # You can define a 'role' field if needed
+                gender='Male',
+                location='Admin Location',
+                language='English'
+            )
+            db.session.add(admin)
+
+        # Create some initial resources (if they don't already exist)
+        if not Resource.query.first():
+            resource1 = Resource(
+                user_id=1,  # Replace with actual user ID
+                title='Intro to Programming',
+                link='https://example.com/intro-to-programming',
+                category='Education',
+                type='tutorial',
+                description='A great resource to start learning programming.',
+                eligibility='Anyone',
+                location='Online',
+                rating=4.5,
+                reviews=10,
+                popularity=100,
+                tags='programming, tutorial',
+                deadline=None,
+                duration='N/A',
+                members=0
+            )
+            db.session.add(resource1)
+
+            resource2 = Resource(
+                user_id=2,  # Replace with actual user ID
+                title='Machine Learning Basics',
+                link='https://example.com/machine-learning-basics',
+                category='Education',
+                type='course',
+                description='Learn the basics of machine learning.',
+                eligibility='Anyone with basic programming knowledge',
+                location='Online',
+                rating=4.8,
+                reviews=25,
+                popularity=200,
+                tags='machine learning, course',
+                deadline=None,
+                duration='4 weeks',
+                members=0
+            )
+            db.session.add(resource2)
+
+        db.session.commit()
+        print("Database seeded with initial data.")
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error seeding the database: {e}")
+
+@app.cli.command("seed-achievements")
+def seed_achievements():
+    """Pre-seed achievements into the database."""
+    try:
+        if not Achievement.query.first():  # Check if achievements already exist
+            achievement1 = Achievement(
+                user_id=1,  # Replace with actual user ID
+                title="Completed Basic Python",
+                progress=100,
+                created_at=datetime.utcnow()
+            )
+            db.session.add(achievement1)
+
+            achievement2 = Achievement(
+                user_id=1,  # Replace with actual user ID
+                title="Completed Machine Learning Basics",
+                progress=50,
+                created_at=datetime.utcnow()
+            )
+            db.session.add(achievement2)
+
+        db.session.commit()
+        print("Achievements seeded.")
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error seeding achievements: {e}")
+@app.cli.command("seed-notifications")
+def seed_notifications():
+    """Pre-seed notifications into the database."""
+    try:
+        if not Notification.query.first():  # Check if notifications already exist
+            notification1 = Notification(
+                user_id=1,  # Replace with actual user ID
+                title="New Resource Available: Intro to Python",
+                time=datetime.utcnow(),
+                read=False
+            )
+            db.session.add(notification1)
+
+            notification2 = Notification(
+                user_id=1,  # Replace with actual user ID
+                title="Your Machine Learning Basics course has started!",
+                time=datetime.utcnow(),
+                read=False
+            )
+            db.session.add(notification2)
+
+        db.session.commit()
+        print("Notifications seeded.")
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error seeding notifications: {e}")
+@app.cli.command("seed-insights")
+def seed_insights():
+    """Pre-seed insights into the database."""
+    try:
+        # Check if insights already exist
+        if not Insight.query.first():
+            insight1 = Insight(
+                title="How to Get Started with Flask",
+                type="Tutorial",
+                created_at=datetime.utcnow()
+            )
+            db.session.add(insight1)
+
+            insight2 = Insight(
+                title="Top 5 Machine Learning Algorithms to Learn",
+                type="Article",
+                created_at=datetime.utcnow()
+            )
+            db.session.add(insight2)
+
+            insight3 = Insight(
+                title="Why Python is the Best Language for Data Science",
+                type="Blog Post",
+                created_at=datetime.utcnow()
+            )
+            db.session.add(insight3)
+
+        db.session.commit()
+        print("Insights seeded.")
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error seeding insights: {e}")
+@app.cli.command("seed-funding")
+def insert_sample_funding_data():
+    """Pre-seed funding data into the database."""
+    sample_data = [
+        {
+            'date': datetime(2024, 1, 15),
+            'amount': 50000,
+            'category': 'Research',
+            'project_title': 'AI Ethics Research Initiative',
+            'description': 'Groundbreaking research in AI ethics and governance'
+        },
+        {
+            'date': datetime(2024, 2, 1),
+            'amount': 75000,
+            'category': 'Development',
+            'project_title': 'Sustainable Energy Project',
+            'description': 'Development of new sustainable energy solutions'
+        },
+        {
+            'date': datetime(2024, 2, 15),
+            'amount': 30000,
+            'category': 'Education',
+            'project_title': 'STEM Education Program',
+            'description': 'Expanding STEM education in underserved communities'
+        },
+        {
+            'date': datetime(2024, 3, 1),
+            'amount': 100000,
+            'category': 'Innovation',
+            'project_title': 'Healthcare Innovation Lab',
+            'description': 'Innovative solutions in healthcare technology'
+        },
+        {
+            'date': datetime(2024, 3, 15),
+            'amount': 45000,
+            'category': 'Community',
+            'project_title': 'Community Development Initiative',
+            'description': 'Supporting local community development projects'
+        }
+    ]
+    
+    # Add sample funding data to the database
+    for data in sample_data:
+        funding = Funding(**data)
+        db.session.add(funding)
+    
+    try:
+        db.session.commit()
+        print("Sample funding data inserted successfully")
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error inserting sample data: {str(e)}")
+
+
 
 
 

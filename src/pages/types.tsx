@@ -20,6 +20,7 @@ export interface SignupData {
 export interface AuthResponse {
   user: UserData;
   token: string;
+  message: string;
 }
 
 // Helper function to transform API user data to UserData type
@@ -31,3 +32,24 @@ export const mapUserData = (apiUser: any, token: string): UserData => {
     token: token
   };
 };
+export interface Resource {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  tags?: string;
+  rating?: number;
+  duration?: string;
+  members?: number;
+  uploaded_at?: string;
+}
+
+export interface Stats {
+  [key: string]: number;
+}
+
+export interface FilterOptions {
+  type: string;
+  duration: string;
+  rating: string;
+}

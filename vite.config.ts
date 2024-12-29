@@ -11,24 +11,26 @@ export default defineConfig({
         secure: false,
         ws: true,
         configure: (proxy, _options) => {
-          // Listen for proxy errors
           proxy.on('error', (err, _req, _res) => {
-            console.log('Proxy error:', err);
+            console.log('proxy error', err);
           });
-
-          // Modify the outgoing proxy request
           proxy.on('proxyReq', (proxyReq, req, _res) => {
-            console.log('Sending Request to the Target:', req.method, req.url);
-            // Example: Add a custom header
-            proxyReq.setHeader('X-Custom-Header', 'CustomValue');
+            // Log the full request details
+            console.log('Proxying request:', {
+              method: req.method,
+              url: req.url,
+              headers: proxyReq.getHeaders()
+            });
           });
-
-          // Log the response from the backend
           proxy.on('proxyRes', (proxyRes, req, _res) => {
-            console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
+            console.log('Received response:', {
+              statusCode: proxyRes.statusCode,
+              url: req.url,
+              headers: proxyRes.headers
+            });
           });
         },
-      },
-    },
+      }
+    }
   },
 });

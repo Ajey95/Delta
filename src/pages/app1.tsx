@@ -1,4 +1,4 @@
-import React, { useState, createContext, useContext, Suspense, useEffect } from 'react';
+import React, { useState, createContext, useContext, Suspense, useEffect, ReactNode } from 'react';
 // import express from 'express'; // Removed as it is not used in a React frontend application
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Bell, Home, BookOpen, TrendingUp, Loader2, LogOut } from 'lucide-react';
@@ -24,6 +24,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   signup: (formData: SignupData) => Promise<void>;
   logout: () => Promise<void>;
+  setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 interface Notification {
@@ -127,18 +128,34 @@ export const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
 
   return <>{children}</>;
 };
+interface Props {
+  children: ReactNode;
+}
+
+interface State {
+  hasError: boolean;
+  error: Error | null;
+}
 // Error Boundary Component
-class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  constructor(props: ErrorBoundaryProps) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
+class ErrorBoundary extends React.Component<Props, State> {
+  // constructor(props: ErrorBoundaryProps) {
+  //   super(props);
+  //   this.state = { hasError: false, error: null };
+  // }
 
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+  // static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+  //   return { hasError: true, error };
+  // }
+  public state: State = {
+    hasError: false,
+    error: null,
+};
+
+public static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };
-  }
+}
 
-  render() {
+  public render() {
     if (this.state.hasError) {
       return (
         <Alert variant="destructive" className="my-4">
@@ -204,20 +221,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
+    const checkAuth = () => {
+      const token = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
 
-    if (token && storedUser) {
-      try {
-        const userData = JSON.parse(storedUser) as UserData;
-        setUser(userData);
-        setIsAuthenticated(true);
-      } catch (error) {
-        console.error('Failed to parse stored user data:', error);
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+      if (token && storedUser) {
+        try {
+          const userData = JSON.parse(storedUser) as UserData;
+          setUser(userData);
+          setIsAuthenticated(true);
+        } catch (error) {
+          console.error('Failed to parse stored user data:', error);
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          setIsAuthenticated(false);
+        }
       }
-    }
+    };
+
+    checkAuth();
   }, []);
 
   const login = async (email: string, password: string) => {
@@ -230,7 +252,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       setUser(userData);
       setIsAuthenticated(true);
-      navigate('/dashboard');
+      navigate('/dashboard', { replace: true });
     } catch (error) {
       console.error('Login failed:', error);
       throw error;
@@ -269,7 +291,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, signup, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, login, signup, logout ,setIsAuthenticated}}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
+import { useAuth } from './app1';
 
 interface PrivateRouteProps {
   children: React.ReactNode;
@@ -9,14 +10,16 @@ interface PrivateRouteProps {
 export const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const {isAuthenticated }= useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const verifyAuth = async () => {
+    const checkAuth = async () => {
       const token = localStorage.getItem('token');
       
       if (!token) {
         setIsLoading(false);
+        navigate('/login', { replace: true });
         return;
       }
 
@@ -27,11 +30,11 @@ export const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
           }
         });
 
-        if (response.ok) {
-          setIsAuthenticated(true);
-        } else {
+        if (!response.ok) 
+           {
           // Clear invalid token
           localStorage.removeItem('token');
+          navigate('/login', { replace: true });
           localStorage.removeItem('user');
         }
       } catch (err) {
@@ -41,7 +44,7 @@ export const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
       }
     };
 
-    verifyAuth();
+    checkAuth();
   }, []);
 
   // Handle loading state with a spinner
@@ -71,9 +74,6 @@ export const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
   }
 
   // Redirect if not authenticated
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
+  return isAuthenticated ? children:null;
 
-  return <>{children}</>;
 };

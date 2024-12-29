@@ -1,33 +1,65 @@
-// services/apiClient.ts
-import axios from 'axios';
-import { authService } from './authService';
+// api.ts - Centralized API handling
+export const API_BASE_URL = 'http://localhost:5000/api';
 
-const apiClient = axios.create({
-  baseURL: 'http://localhost:5000/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
 
-// Add a request interceptor
-apiClient.interceptors.request.use((config) => {
-  const token = authService.getToken();
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
 
-// Add a response interceptor
-apiClient.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    if (error.response?.status === 401) {
-      authService.logout();
-      window.location.href = '/login';
+class APIService {
+    private getHeaders() {
+        const token = localStorage.getItem('token');
+        return {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        };
     }
-    return Promise.reject(error);
-  }
-);
 
-export default apiClient;
+    private async handleResponse(response: Response) {
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error || 'API request failed');
+        }
+        return response.json();
+    }
+
+    async getFundingStatistics(timeRange: string) {
+        try {
+            const response = await fetch(
+                `${API_BASE_URL}/funding/statistics?timeRange=${timeRange}`,
+                { headers: this.getHeaders() }
+            );
+            return this.handleResponse(response);
+        } catch (error) {
+            console.error('Funding statistics error:', error);
+            throw new Error('Failed to fetch funding data');
+        }
+    }
+
+    async getSuccessStories() {
+        try {
+            const response = await fetch(
+                `${API_BASE_URL}/funding/success-stories`,
+                { headers: this.getHeaders() }
+            );
+            return this.handleResponse(response);
+        } catch (error) {
+            console.error('Success stories error:', error);
+            throw new Error('Failed to fetch success stories');
+        }
+    }
+
+    async getUserProfile() {
+        try {
+            const response = await fetch(
+                `${API_BASE_URL}/user/profile`,
+                { headers: this.getHeaders() }
+            );
+            return this.handleResponse(response);
+        } catch (error) {
+            console.error('User profile error:', error);
+            throw new Error('Failed to fetch user data');
+        }
+    }
+    
+}
+
+export const apiService = new APIService();
+
