@@ -1,9 +1,12 @@
 export const API_BASE_URL = 'http://localhost:5000/api';
 
-interface ResourceQueryParams {
-    [key: string]: string | number | boolean;
-}
-
+export interface ResourceQueryParams {
+    category?: string;
+    search?: string;
+    type?: string;
+    duration?: string;
+    rating?: string;
+  }
 export class APIError extends Error {
     constructor(
         message: string,
@@ -16,12 +19,12 @@ export class APIError extends Error {
 }
 
 // apiUtils.ts
-const getResources = async (params: ResourceQueryParams) => {
+export const getResources = async (params: ResourceQueryParams) => {
     try {
         const token = localStorage.getItem('token'); // Or however you store your token
         const queryString = new URLSearchParams(params as Record<string, string>).toString();
         
-        const response = await fetch(`${API_BASE_URL}/api/resources?${queryString}`, {
+        const response = await fetch(`${API_BASE_URL}/resources?${queryString}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -43,6 +46,8 @@ const getResources = async (params: ResourceQueryParams) => {
         throw error;
     }
 };
+
+
 
 export const fetchWithAuth = async (
     endpoint: string,

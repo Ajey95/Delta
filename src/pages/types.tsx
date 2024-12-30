@@ -44,6 +44,7 @@ export interface Resource {
   uploaded_at?: string;
 }
 
+
 export interface Stats {
   [key: string]: number;
 }
@@ -52,4 +53,15 @@ export interface FilterOptions {
   type: string;
   duration: string;
   rating: string;
+}
+export interface AddResourceData {
+  title: string;
+  link: string;
+  category: string;
+  description: string;
+  user_id: string;
+}
+
+export interface AddResourceResponse {
+  message: string;
 }

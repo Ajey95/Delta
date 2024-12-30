@@ -58,21 +58,45 @@ const FundingVisualization: React.FC = () => {
       }
       
       const data: FundingData = await response.json();
+      console.log('Received funding data:', data); // Debug log
+      
       setFundingData(data);
       setChartData(processMonthlyData(data.data_points));
-      setStatsData([
-        { label: 'Total Funding', value: `$${data.total_amount.toLocaleString()}` },
-        { label: 'Average Grant', value: `$${data.average.toLocaleString()}` },
-        { label: 'Total Projects', value: data.count.toString() },
-        { label: 'Success Rate', value: `${((data.data_points.length / data.count) * 100).toFixed(1)}%` }
-      ]);
+      setStatsData(calculateStats(data)); // Using the new calculateStats function
+      
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
       console.error('Error fetching funding data:', err);
+      // Set default values on error
+      setStatsData(calculateStats(null));
     } finally {
       setLoading(false);
     }
   };
+
+  const calculateStats = (data: FundingData | null) => {
+    if (!data || !data.data_points || data.data_points.length === 0) {
+      return [
+        { label: 'Total Funding', value: '$0' },
+        { label: 'Average Grant', value: '$0' },
+        { label: 'Total Projects', value: '0' },
+        { label: 'Success Rate', value: '0%' }
+      ];
+    }
+  
+    const totalAmount = data.total_amount || 0;
+    const count = data.count || 0;
+    const average = count > 0 ? totalAmount / count : 0;
+    const successRate = count > 0 ? (data.data_points.length / count * 100) : 0;
+  
+    return [
+      { label: 'Total Funding', value: `$${totalAmount.toLocaleString()}` },
+      { label: 'Average Grant', value: `$${average.toLocaleString()}` },
+      { label: 'Total Projects', value: count.toString() },
+      { label: 'Success Rate', value: `${successRate.toFixed(1)}%` }
+    ];
+  };
+  
 
   const fetchSuccessStories = async () => {
     try {
@@ -99,25 +123,81 @@ const FundingVisualization: React.FC = () => {
   }, [timeRange]);
 
   const processMonthlyData = (dataPoints: FundingData['data_points']) => {
-    const monthlyData = dataPoints.reduce<Record<string, { month: string; totalAmount: number; count: number }>>(
-      (acc, point) => {
-        const month = new Date(point.date).toLocaleString('default', { month: 'short' });
-        if (!acc[month]) {
-          acc[month] = { month, totalAmount: 0, count: 0 };
-        }
-        acc[month].totalAmount += point.amount;
-        acc[month].count += 1;
-        return acc;
-      },
-      {}
-    );
-
-    return Object.values(monthlyData).sort((a, b) => {
+    if (!dataPoints || dataPoints.length === 0) {
       const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      return months.indexOf(a.month) - months.indexOf(b.month);
-    });
-  };
+      const currentMonth = new Date().getMonth();
+      const lastTwelveMonths = Array.from({ length: 12 }, (_, i) => {
+        const monthIndex = (currentMonth - i + 12) % 12;
+        return {
+          month: months[monthIndex],
+          totalAmount: 0,
+          count: 0
+        };
+      }).reverse();
+      return lastTwelveMonths;
+    }
+    
+    const startDate = new Date(dataPoints[0].date);
+    const endDate = new Date(dataPoints[dataPoints.length - 1].date);
+    const months: Record<string, { month: string; totalAmount: number; count: number }> = {};
+    let currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
+      const monthKey = currentDate.toLocaleString('default', { month: 'short' });
+      months[monthKey] = { month: monthKey, totalAmount: 0, count: 0 };
+      currentDate.setMonth(currentDate.getMonth() + 1);
+    }
 
+  // Fill in actual data
+      dataPoints.forEach(point => {
+        const month = new Date(point.date).toLocaleString('default', { month: 'short' });
+        if (months[month]) {
+          months[month].totalAmount += point.amount;
+          months[month].count += 1;
+        }
+      });
+      // const monthlyData = dataPoints.reduce<Record<string, { month: string; totalAmount: number; count: number }>>(
+      //   (acc, point) => {
+      //     const month = new Date(point.date).toLocaleString('default', { month: 'short' });
+      //     if (!acc[month]) {
+      //       acc[month] = { month, totalAmount: 0, count: 0 };
+      //     }
+      //     acc[month].totalAmount += point.amount;
+      //     acc[month].count += 1;
+      //     return acc;
+      //   },
+      //   {}
+      // );
+
+      // Convert to array and sort
+      const calculateStats = (data: FundingData) => {
+        if (!data || !data.data_points || data.data_points.length === 0) {
+          return [
+            { label: 'Total Funding', value: '$0' },
+            { label: 'Average Grant', value: '$0' },
+            { label: 'Total Projects', value: '0' },
+            { label: 'Success Rate', value: '0%' }
+          ];
+        }
+      
+        const totalAmount = data.total_amount || 0;
+        const count = data.count || 0;
+        const average = count > 0 ? totalAmount / count : 0;
+        const successRate = count > 0 ? (data.data_points.length / count * 100) : 0;
+      
+        return [
+          { label: 'Total Funding', value: `$${totalAmount.toLocaleString()}` },
+          { label: 'Average Grant', value: `$${average.toLocaleString()}` },
+          { label: 'Total Projects', value: count.toString() },
+          { label: 'Success Rate', value: `${successRate.toFixed(1)}%` }
+        ];
+      };
+      return Object.values(months).sort((a, b) => {
+        const monthOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month);
+      });
+  };
+  
+  
   const handleExportData = async () => {
     if (!fundingData) return;
     
@@ -215,17 +295,17 @@ const FundingVisualization: React.FC = () => {
         </Card>
 
         <Card>
-          <CardContent className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Funding Statistics</h3>
-            <div className="grid grid-cols-2 gap-4">
-              {statsData.map((stat, index) => (
-                <div key={index} className="p-4 bg-gray-50 rounded-lg">
-                  <p className="text-sm text-gray-600">{stat.label}</p>
-                  <p className="text-2xl font-semibold">{stat.value}</p>
-                </div>
-              ))}
-            </div>
-          </CardContent>
+        <CardContent className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Funding Statistics</h3>
+          <div className="grid grid-cols-2 gap-4">
+            {statsData.map((stat, index) => (
+              <div key={index} className="p-4 bg-gray-50 rounded-lg">
+                <p className="text-sm text-gray-600">{stat.label}</p>
+                <p className="text-2xl font-semibold">{stat.value}</p>
+              </div>
+            ))}
+          </div>
+        </CardContent>
         </Card>
       </div>
 

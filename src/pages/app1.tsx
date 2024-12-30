@@ -15,6 +15,7 @@ import { authService } from '../services/authService';
 import LandingPage from './women-empowerment-landing';
 import Features from './features';
 import Community from './community';
+import { ResourceList } from './resourceList';
 import { UserData, AuthResponse, mapUserData,SignupData } from '../pages/types';
 
 
@@ -481,6 +482,7 @@ const AppLayout: React.FC = () => {
                   <TabsTrigger value="resources" className="flex items-center space-x-2">
                     <BookOpen className="h-4 w-4" />
                     <span>Resources</span>
+                    
                   </TabsTrigger>
                   <TabsTrigger value="funding" className="flex items-center space-x-2">
                     <TrendingUp className="h-4 w-4" />

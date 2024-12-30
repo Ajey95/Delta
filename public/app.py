@@ -203,6 +203,26 @@ class Resource(db.Model):
     duration = db.Column(db.String(100))
     members = db.Column(db.Integer)
     uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)  # Add this line
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'link': self.link,
+            'category': self.category,
+            'type': self.type,
+            'description': self.description,
+            'user_id': self.user_id,
+            'duration': self.duration,
+            'rating': self.rating,
+            'reviews': self.reviews,
+            'popularity': self.popularity,
+            'tags': self.tags,
+            'deadline': self.deadline,
+            'members': self.members,
+            'uploaded_at': self.uploaded_at.strftime('%Y-%m-%d %H:%M:%S')
+
+            # Add any other fields you need
+        }
 class Funding(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime, nullable=False)
@@ -677,7 +697,7 @@ def get_resources_by_category(category):
         ]
     }), 200
 
-@app.route('/add-resource', methods=['POST'])
+@app.route('/api/add-resource', methods=['POST'])
 def add_resource():
     data = request.get_json()
     new_resource = Resource(
@@ -724,7 +744,7 @@ def get_recommendations(user_id):
         ]
     }), 200
 
-@app.route('/fetch-courses/<topic>', methods=['GET'])
+@app.route('/api/fetch-courses/<topic>', methods=['GET'])
 def fetch_courses(topic):
     coursera_api_url = f"https://api.coursera.org/api/courses.v1?q=search&query={topic}"
     response = requests.get(coursera_api_url)
