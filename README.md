@@ -165,6 +165,9 @@ Community
 ![image](https://github.com/user-attachments/assets/d639b605-115b-4aa8-bdb3-7c4da72da2de)
 Features
 ![image](https://github.com/user-attachments/assets/cf9bedea-5791-4d8c-96c9-cbd8f5290c7e)
+About
+![image](https://github.com/user-attachments/assets/0f60a3a4-4361-4a05-8ffe-70bd0f640639)
+
 
 Dashboard
 ![image](https://github.com/user-attachments/assets/b0161ec7-e615-4f3d-86e9-6693dc2c6b79)
