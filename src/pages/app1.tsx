@@ -16,8 +16,8 @@ import LandingPage from './women-empowerment-landing';
 import AboutPage from './AboutPage';
 import Features from './features';
 import Community from './community';
-import { ResourceList } from './resourceList';
-import { UserData, AuthResponse, mapUserData,SignupData } from '../pages/types';
+// import { ResourceList } from './resourceList';
+import { UserData,mapUserData,SignupData } from '../pages/types';
 
 
 interface AuthContextType {
@@ -47,20 +47,20 @@ interface NotificationContextType {
   setNotifications: React.Dispatch<React.SetStateAction<Notification[]>>;
 }
 
-interface ErrorBoundaryState {
-  hasError: boolean;
-  error: Error | null;
-}
+// interface ErrorBoundaryState {
+//   hasError: boolean;
+//   error: Error | null;
+// }
 
-interface ErrorBoundaryProps {
-  children: React.ReactNode;
-}
+// interface ErrorBoundaryProps {
+//   children: React.ReactNode;
+// }
 
-interface NotificationPanelProps {
-  notifications: Notification[];
-  onMarkAsRead: (id: string | number) => void;
-  setNotifications: React.Dispatch<React.SetStateAction<Notification[]>>;
-}
+// interface NotificationPanelProps {
+//   notifications: Notification[];
+//   onMarkAsRead: (id: string | number) => void;
+//   setNotifications: React.Dispatch<React.SetStateAction<Notification[]>>;
+// }
 
 // Create contexts with types
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -184,37 +184,37 @@ const LoadingSpinner: React.FC = () => (
 );
 
 // Notification Panel Component
-const NotificationPanel: React.FC<NotificationPanelProps> = ({ notifications, onMarkAsRead }) => (
-  <div className="space-y-4">
-    {notifications.map((notification) => (
-      <div
-        key={notification.id}
-        className={`p-4 rounded-lg ${
-          notification.read ? 'bg-gray-50' : 'bg-blue-50'
-        }`}
-      >
-        <div className="flex justify-between items-start">
-          <div>
-            <p className="font-medium">{notification.title}</p>
-            <p className="text-sm text-gray-600">{notification.message}</p>
-          </div>
-          {!notification.read && (
-            <Badge
-              variant="secondary"
-              className="cursor-pointer"
-              onClick={() => onMarkAsRead(notification.id)}
-            >
-              Mark as read
-            </Badge>
-          )}
-        </div>
-        <p className="text-xs text-gray-500 mt-2">
-          {new Date(notification.time).toLocaleString()}
-        </p>
-      </div>
-    ))}
-  </div>
-);
+// const NotificationPanel: React.FC<NotificationPanelProps> = ({ notifications, onMarkAsRead }) => (
+//   <div className="space-y-4">
+//     {notifications.map((notification) => (
+//       <div
+//         key={notification.id}
+//         className={`p-4 rounded-lg ${
+//           notification.read ? 'bg-gray-50' : 'bg-blue-50'
+//         }`}
+//       >
+//         <div className="flex justify-between items-start">
+//           <div>
+//             <p className="font-medium">{notification.title}</p>
+//             <p className="text-sm text-gray-600">{notification.message}</p>
+//           </div>
+//           {!notification.read && (
+//             <Badge
+//               variant="secondary"
+//               className="cursor-pointer"
+//               onClick={() => onMarkAsRead(notification.id)}
+//             >
+//               Mark as read
+//             </Badge>
+//           )}
+//         </div>
+//         <p className="text-xs text-gray-500 mt-2">
+//           {new Date(notification.time).toLocaleString()}
+//         </p>
+//       </div>
+//     ))}
+//   </div>
+// );
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -310,7 +310,7 @@ export const useAuth = (): AuthContextType => {
 const AppLayout: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
   const { user, logout } = useAuth();

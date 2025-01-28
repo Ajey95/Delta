@@ -1,7 +1,7 @@
 // pages/Community.tsx
-import React from 'react';
-import { Users, MessageCircle, Calendar, Globe, Award, Heart, Share2 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+// import React from 'react';
+import { Users, MessageCircle, Calendar, Globe, Award, Heart } from 'lucide-react';
+import { Card, CardContent} from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
 
