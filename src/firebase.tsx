@@ -194,7 +194,7 @@ const getAuthErrorMessage = (errorCode: string): string => {
 
 export { app, auth, db };
 import { } from 'firebase/app';
-import { connectAuthEmulator } from 'firebase/auth';
+// import { connectAuthEmulator } from 'firebase/auth';
 import { enableIndexedDbPersistence } from 'firebase/firestore';
 // Enable offline persistence
 enableIndexedDbPersistence(db).catch((err) => {

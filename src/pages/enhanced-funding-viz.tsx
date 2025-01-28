@@ -169,28 +169,28 @@ const FundingVisualization: React.FC = () => {
       // );
 
       // Convert to array and sort
-      const calculateStats = (data: FundingData) => {
-        if (!data || !data.data_points || data.data_points.length === 0) {
-          return [
-            { label: 'Total Funding', value: '$0' },
-            { label: 'Average Grant', value: '$0' },
-            { label: 'Total Projects', value: '0' },
-            { label: 'Success Rate', value: '0%' }
-          ];
-        }
+      // const calculateStats = (data: FundingData) => {
+      //   if (!data || !data.data_points || data.data_points.length === 0) {
+      //     return [
+      //       { label: 'Total Funding', value: '$0' },
+      //       { label: 'Average Grant', value: '$0' },
+      //       { label: 'Total Projects', value: '0' },
+      //       { label: 'Success Rate', value: '0%' }
+      //     ];
+      //   }
       
-        const totalAmount = data.total_amount || 0;
-        const count = data.count || 0;
-        const average = count > 0 ? totalAmount / count : 0;
-        const successRate = count > 0 ? (data.data_points.length / count * 100) : 0;
+      //   const totalAmount = data.total_amount || 0;
+      //   const count = data.count || 0;
+      //   const average = count > 0 ? totalAmount / count : 0;
+      //   const successRate = count > 0 ? (data.data_points.length / count * 100) : 0;
       
-        return [
-          { label: 'Total Funding', value: `$${totalAmount.toLocaleString()}` },
-          { label: 'Average Grant', value: `$${average.toLocaleString()}` },
-          { label: 'Total Projects', value: count.toString() },
-          { label: 'Success Rate', value: `${successRate.toFixed(1)}%` }
-        ];
-      };
+      //   return [
+      //     { label: 'Total Funding', value: `$${totalAmount.toLocaleString()}` },
+      //     { label: 'Average Grant', value: `$${average.toLocaleString()}` },
+      //     { label: 'Total Projects', value: count.toString() },
+      //     { label: 'Success Rate', value: `${successRate.toFixed(1)}%` }
+      //   ];
+      // };
       return Object.values(months).sort((a, b) => {
         const monthOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         return monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month);

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bell, MessageCircle, BookOpen, Users, Award, 
+import { Bell, MessageCircle, BookOpen, Award, 
          Calendar, TrendingUp, Target, Bookmark, Share2 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';

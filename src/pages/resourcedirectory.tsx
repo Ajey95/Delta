@@ -3,56 +3,52 @@ import {
   Search,
   Filter,
   BookOpen,
-  Share2,
-  Star,
-  Clock,
-  Users,
   PlusCircle,
   Layout
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
+// import { Badge } from '../components/ui/badge';
 import { useCategories } from './useCategories';
 import { Alert, AlertDescription } from '../components/ui/alert';
 import { useCombinedResources } from './useResources';
 import { useStats } from './useStats';
 import { useFilters } from './useFilters';
-import { Textarea } from '../components/ui/textarea';
+// import { Textarea } from '../components/ui/textarea';
 import { Input } from '../components/ui/input';
-import { Resource, Stats } from './types';
+import { Resource, } from './types';
 import { FilterOptions } from './types';
 import { AddResourceForm } from './addResources';
 
 
 
-const fetchCourses = async (topic: string) => {
-  try {
-    const response = await fetch(`/fetch-courses/${encodeURIComponent(topic)}`);
-    if (!response.ok) throw new Error('Failed to fetch courses');
-    return await response.json();
-  } catch (error) {
-    console.error('Error fetching courses:', error);
-    throw error;
-  }
-};
-const addResource = async (resourceData: any) => {
-  try {
-    const response = await fetch('/add-resource', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(resourceData),
-    });
-    if (!response.ok) throw new Error('Failed to add resource');
-    return await response.json();
-  } catch (error) {
-    console.error('Error adding resource:', error);
-    throw error;
-  }
-};
+// const fetchCourses = async (topic: string) => {
+//   try {
+//     const response = await fetch(`/fetch-courses/${encodeURIComponent(topic)}`);
+//     if (!response.ok) throw new Error('Failed to fetch courses');
+//     return await response.json();
+//   } catch (error) {
+//     console.error('Error fetching courses:', error);
+//     throw error;
+//   }
+// };
+// const addResource = async (resourceData: any) => {
+//   try {
+//     const response = await fetch('/add-resource', {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify(resourceData),
+//     });
+//     if (!response.ok) throw new Error('Failed to add resource');
+//     return await response.json();
+//   } catch (error) {
+//     console.error('Error adding resource:', error);
+//     throw error;
+//   }
+// };
 // Components
 const StatsSection: React.FC<{ stats: Record<string, number> }> = ({ stats }) => (
   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -171,80 +167,80 @@ const FilterSection: React.FC<{
 // };
 
 // New CourseRecommendations component integrated into the main component
-const CourseRecommendations = () => {
-  const [topic, setTopic] = useState('');
-  interface Course {
-    name: string;
-    description: string;
-    link: string;
-  }
+// const CourseRecommendations = () => {
+//   const [topic, setTopic] = useState('');
+//   interface Course {
+//     name: string;
+//     description: string;
+//     link: string;
+//   }
   
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+//   const [courses, setCourses] = useState<Course[]>([]);
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState('');
 
-  const handleSearch = async () => {
-    if (!topic) return;
-    setLoading(true);
-    setError('');
-    try {
-      const data = await fetchCourses(topic);
-      setCourses(data.courses);
-    } catch (err) {
-      setError('Failed to fetch courses');
-    } finally {
-      setLoading(false);
-    }
-  };
+//   const handleSearch = async () => {
+//     if (!topic) return;
+//     setLoading(true);
+//     setError('');
+//     try {
+//       const data = await fetchCourses(topic);
+//       setCourses(data.courses);
+//     } catch (err) {
+//       setError('Failed to fetch courses');
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <BookOpen className="h-5 w-5" />
-          Course Recommendations
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex gap-2 mb-4">
-          <Input
-            placeholder="Enter topic..."
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-          />
-          <Button onClick={handleSearch} disabled={loading}>
-            {loading ? 'Searching...' : 'Search'}
-          </Button>
-        </div>
+//   return (
+//     <Card>
+//       <CardHeader>
+//         <CardTitle className="flex items-center gap-2">
+//           <BookOpen className="h-5 w-5" />
+//           Course Recommendations
+//         </CardTitle>
+//       </CardHeader>
+//       <CardContent>
+//         <div className="flex gap-2 mb-4">
+//           <Input
+//             placeholder="Enter topic..."
+//             value={topic}
+//             onChange={(e) => setTopic(e.target.value)}
+//           />
+//           <Button onClick={handleSearch} disabled={loading}>
+//             {loading ? 'Searching...' : 'Search'}
+//           </Button>
+//         </div>
 
-        {error && (
-          <Alert className="mb-4 bg-red-50">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
+//         {error && (
+//           <Alert className="mb-4 bg-red-50">
+//             <AlertDescription>{error}</AlertDescription>
+//           </Alert>
+//         )}
 
-        <div className="space-y-4">
-          {courses.map((course, index) => (
-            <Card key={index}>
-              <CardContent className="p-4">
-                <h3 className="font-semibold mb-2">{course.name}</h3>
-                <p className="text-sm text-gray-600 mb-2">{course.description}</p>
-                <a
-                  href={course.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline text-sm"
-                >
-                  View Course
-                </a>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
+//         <div className="space-y-4">
+//           {courses.map((course, index) => (
+//             <Card key={index}>
+//               <CardContent className="p-4">
+//                 <h3 className="font-semibold mb-2">{course.name}</h3>
+//                 <p className="text-sm text-gray-600 mb-2">{course.description}</p>
+//                 <a
+//                   href={course.link}
+//                   target="_blank"
+//                   rel="noopener noreferrer"
+//                   className="text-blue-600 hover:underline text-sm"
+//                 >
+//                   View Course
+//                 </a>
+//               </CardContent>
+//             </Card>
+//           ))}
+//         </div>
+//       </CardContent>
+//     </Card>
+//   );
+// };
 
 const ResourceDirectory: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
