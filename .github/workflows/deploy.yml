@@ -1,9 +1,10 @@
-# .github/workflows/deploy.yml
 name: Deploy
-
 on:
   push:
     branches: [ main ]
+
+permissions:
+  contents: write  # Add this line to grant write permissions
 
 jobs:
   build:
