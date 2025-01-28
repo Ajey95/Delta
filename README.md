@@ -64,6 +64,13 @@ Project Overview
 The Business Resource Hub is a comprehensive platform that provides users with various resources, notifications, and insights for business empowerment. It includes features like user authentication, funding visualization, and resource directory management. Built with a robust backend using Flask and a dynamic frontend using React, this application ensures scalability and user-friendliness.
 
 ---
+UserPersonas
+[Persona 2.pdf](https://github.com/user-attachments/files/18281192/Persona.2.pdf)
+[User Persona1.pdf](https://github.com/user-attachments/files/18281193/User.Persona1.pdf)
+Data For Reference
+[Women_Empowerment_Schemes_SearchEngine.xlsx](https://github.com/user-attachments/files/18281199/Women_Empowerment_Schemes_SearchEngine.xlsx)
+
+
 
 Setup Instructions
 
@@ -158,6 +165,9 @@ Community
 ![image](https://github.com/user-attachments/assets/d639b605-115b-4aa8-bdb3-7c4da72da2de)
 Features
 ![image](https://github.com/user-attachments/assets/cf9bedea-5791-4d8c-96c9-cbd8f5290c7e)
+About
+![image](https://github.com/user-attachments/assets/0f60a3a4-4361-4a05-8ffe-70bd0f640639)
+
 
 Dashboard
 ![image](https://github.com/user-attachments/assets/b0161ec7-e615-4f3d-86e9-6693dc2c6b79)
