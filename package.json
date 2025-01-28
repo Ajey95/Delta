@@ -7,7 +7,12 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "react-scripts start",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.2",
@@ -49,8 +54,8 @@
     "tailwindcss": "^3.4.17",
     "typescript": "~5.6.2",
     "typescript-eslint": "^8.18.2",
-    "vite": "^6.0.5",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
-  }
+    "vite": "^6.0.5"
+  },
+  "homepage": "https://ajey95.github.io/Delta"
+
 }
