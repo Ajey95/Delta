@@ -1,6 +1,8 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vite';
 
 export default defineConfig({
-  base: '/Delta/', // Replace 'Delta' with your repository name
-  // other config options if needed
-})
+  base: '/Delta/', // Repository name
+  build: {
+    chunkSizeWarningLimit: 1000, // Optional: adjust chunk size warning
+  },
+});
