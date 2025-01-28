@@ -51,6 +51,6 @@
     "typescript-eslint": "^8.18.2",
     "vite": "^6.0.5",
     "predeploy": "npm run build",
-  "deploy": "gh-pages -d build"
+    "deploy": "gh-pages -d build"
   }
 }
