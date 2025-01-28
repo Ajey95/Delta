@@ -45,7 +45,7 @@ const LandingPage = () => {
           </div>
           <div className="flex gap-8 items-center">
             <button 
-              onClick={() => handleNavigation('/about')}
+              onClick={() => handleNavigation('/AboutPage')}
               className="text-gray-600 hover:text-purple-700"
             >
               About

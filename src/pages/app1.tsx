@@ -13,6 +13,7 @@ import FundingVisualization from './enhanced-funding-viz';
 import { LoginPage, SignupPage } from './login-signup';
 import { authService } from '../services/authService';
 import LandingPage from './women-empowerment-landing';
+import AboutPage from './AboutPage';
 import Features from './features';
 import Community from './community';
 import { ResourceList } from './resourceList';
@@ -573,6 +574,7 @@ const App: React.FC = () => {
             <Routes>
               {/* Add Landing Page as the default route */}
               <Route path="/" element={<LandingPage />} />
+              <Route path="/AboutPage" element={<AboutPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/features" element={<Features />} />

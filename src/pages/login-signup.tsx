@@ -250,11 +250,11 @@ export const SignupPage = () => {
                 <SelectValue placeholder="Preferred Language" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="english">English</SelectItem>
-                <SelectItem value="spanish">Spanish</SelectItem>
-                <SelectItem value="french">French</SelectItem>
-                <SelectItem value="mandarin">Mandarin</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
+                <SelectItem value="Telugu">Telugu</SelectItem>
+                <SelectItem value="Hindi">Hindi</SelectItem>
+                <SelectItem value="Tamil">Tamil</SelectItem>
+                <SelectItem value="Malayalam">Malayalam</SelectItem>
+                <SelectItem value="English">English</SelectItem>
               </SelectContent>
             </Select>
             <Input
