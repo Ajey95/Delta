@@ -5,7 +5,7 @@ import { FilterOptions } from '../pages/types';
 
 export const ResourceList: React.FC = () => {
     // State for filters
-    const [selectedCategory, setSelectedCategory] = useState<string>('All');
+    const [selectedCategory] = useState<string>('All');
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [filters, setFilters] = useState<FilterOptions>({
         type: 'All Types',

@@ -1,10 +1,10 @@
 // Description: This page is the landing page for the WomenAI project. It includes a hero section, features section, and a call-to-action section. The hero section includes a title, description, and statistics. The features section includes three cards with icons, titles, and descriptions. The call-to-action section includes a title, description, and a button to start the journey.
-import { Award, Brain, Heart, Users, ArrowRight, ChevronRight, Globe, Sparkles } from 'lucide-react';
-import React, { useState } from 'react';
+import { Brain, Users, ArrowRight, ChevronRight, Globe, Sparkles } from 'lucide-react';
+// import React, { useState } from 'react';
 import { Button } from '../components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { Input } from '../components/ui/input';
-import { ArrowLeft } from 'lucide-react';
+import { Card, CardContent } from '../components/ui/card';
+// import { Input } from '../components/ui/input';
+// import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './app1';
 
