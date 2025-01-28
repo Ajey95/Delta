@@ -1,7 +1,7 @@
-// pages/Features.tsx
-import React from 'react';
+//  pages/Features.tsx
+// import React from 'react';
 import { Brain, Code, Users, Star, BookOpen, Bot, Trophy, Target, Rocket } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Card, CardContent} from '../components/ui/card';
 import { Button } from '../components/ui/button';
 
 const Features = () => {
