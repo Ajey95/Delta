@@ -25,7 +25,7 @@ from flask_validator import ValidateEmail, ValidateString, ValidateInteger
 # Load environment variables
 load_dotenv()
 # At the top of your file after imports
-api_key = "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"
+api_key = "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"
 client = OpenAI(api_key=api_key)
 SECRET_KEY = 'your-secret-key' 
 from functools import wraps
@@ -1103,7 +1103,8 @@ def get_funding_statistics():
             threshold = today - timedelta(days=365)
         
         # Query funding data
-        funding_entries = Funding.query.filter(Funding.date >= threshold).all()
+        # funding_entries = Funding.query.filter(Funding.date >= threshold).all()
+        funding_entries = Funding.query.all()
         
         # Process the data
         data_points = [{
@@ -1313,28 +1314,89 @@ def seed_achievements():
 def seed_notifications():
     """Pre-seed notifications into the database."""
     try:
-        if not Notification.query.first():  # Check if notifications already exist
-            notification1 = Notification(
-                user_id=1,  # Replace with actual user ID
-                title="New Resource Available: Intro to Python",
-                time=datetime.utcnow(),
-                read=False
-            )
-            db.session.add(notification1)
+        # ⚠️ Delete all existing notifications (DEV ONLY)
+        Notification.query.delete()
+        db.session.commit()
 
-            notification2 = Notification(
-                user_id=1,  # Replace with actual user ID
-                title="Your Machine Learning Basics course has started!",
-                time=datetime.utcnow(),
-                read=False
-            )
-            db.session.add(notification2)
+        # Now insert fresh notifications
+        notification1 = Notification(
+            user_id=1,
+            title="New Resource Available: Intro to Python",
+            time=datetime.utcnow(),
+            read=False
+        )
+        db.session.add(notification1)
+
+        notification2 = Notification(
+            user_id=1,
+            title="Your Machine Learning Basics course has started!",
+            time=datetime.utcnow(),
+            read=False
+        )
+        db.session.add(notification2)
+
+        notification3 = Notification(
+            user_id=1,
+            title="Don't miss: Live session on Data Structures this Friday",
+            time=datetime.utcnow(),
+            read=False
+        )
+        db.session.add(notification3)
+
+        notification4 = Notification(
+            user_id=1,
+            title="Weekly Progress Report is available now",
+            time=datetime.utcnow(),
+            read=False
+        )
+        db.session.add(notification4)
 
         db.session.commit()
         print("Notifications seeded.")
     except Exception as e:
         db.session.rollback()
         print(f"Error seeding notifications: {e}")
+# def seed_notifications():
+#     """Pre-seed notifications into the database."""
+#     try:
+#         if not Notification.query.first():  # Check if notifications already exist
+#             notification1 = Notification(
+#                 user_id=1,  # Replace with actual user ID
+#                 title="New Resource Available: Intro to Python",
+#                 time=datetime.utcnow(),
+#                 read=False
+#             )
+#             db.session.add(notification1)
+
+#             notification2 = Notification(
+#                 user_id=1,  # Replace with actual user ID
+#                 title="Your Machine Learning Basics course has started!",
+#                 time=datetime.utcnow(),
+#                 read=False
+#             )
+#             db.session.add(notification2)
+
+#             notification3 = Notification(
+#             user_id=1,  # Replace with actual user ID
+#             title="Don't miss: Live session on Data Structures this Friday",
+#             time=datetime.utcnow(),
+#             read=False
+#             )
+#             db.session.add(notification3)
+
+#             notification4 = Notification(
+#                 user_id=1,  # Replace with actual user ID
+#                 title="Weekly Progress Report is available now",
+#                 time=datetime.utcnow(),
+#                 read=False
+#             )
+#             db.session.add(notification4)
+#         Notification.query.delete()
+#         db.session.commit()
+#         print("Notifications seeded.")
+#     except Exception as e:
+#         db.session.rollback()
+#         print(f"Error seeding notifications: {e}")
 @app.cli.command("seed-insights")
 def seed_insights():
     """Pre-seed insights into the database."""
