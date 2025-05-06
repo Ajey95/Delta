@@ -1,212 +1,127 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-OM
-# React + TypeScript + Vite
+# Business Resource Hub
 
+A comprehensive web application designed to empower entrepreneurs with essential resources, funding insights, and community support.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![Business Resource Hub Banner](https://github.com/user-attachments/assets/44813040-29ab-44c9-a61e-234b18ba1bd2)
 
-Currently, two official plugins are available:
+## Vision
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+To create an inclusive platform that bridges the gap between entrepreneurs and the resources they need to succeed, with special focus on supporting women in business.
 
-## Expanding the ESLint configuration
+## Features
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+### 📊 Interactive Dashboard
+Personalized user experience with dynamic data visualization and quick access to all platform features.
 
-- Configure the top-level `parserOptions` property like this:
+![Dashboard](https://github.com/user-attachments/assets/b0161ec7-e615-4f3d-86e9-6693dc2c6b79)
+![Dashboard Details](https://github.com/user-attachments/assets/b0ab4c63-7c68-416a-b642-02545ef61530)
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+### 💰 Funding Visualization
+Interactive charts and graphs to help entrepreneurs understand funding trends, opportunities, and success stories.
+
+![Funding Visualization](https://github.com/user-attachments/assets/8420b7cb-5b88-4418-9ac2-b4891f52a4ea)
+![Funding Details](https://github.com/user-attachments/assets/2ff4e08d-92cf-4da5-a133-2cc744aeb5f2)
+![Funding Graph](https://github.com/user-attachments/assets/72cfb73f-3848-41d4-948f-a22ebf63a6a6)
+
+### 📚 Resource Directory
+Comprehensive catalog of business resources categorized by type, accessibility, and relevance.
+
+![Resource Directory](https://github.com/user-attachments/assets/70453bd1-5d00-4ebf-91cb-bb29bd916526)
+![Resource Details](https://github.com/user-attachments/assets/b2832f95-4d83-41fc-a94d-a868006ba78a)
+
+### 🤖 AI Business Mentor
+Intelligent assistant that helps entrepreneurs understand and develop their business ideas.
+
+### 👥 Community Hub
+Connect with fellow entrepreneurs, share experiences, and build valuable networks.
+
+![Community](https://github.com/user-attachments/assets/d639b605-115b-4aa8-bdb3-7c4da72da2de)
+
+### 🔔 Smart Notifications
+Stay updated with real-time alerts about new resources, funding opportunities, and community events.
+
+## Technology Stack
+
+### Frontend
+- React with TypeScript
+- Vite for fast development
+- TailwindCSS for responsive design
+- Lucide Icons for consistent UI elements
+- React Router DOM for navigation
+
+### Backend
+- Flask framework
+- SQLAlchemy ORM
+- JWT authentication
+- PostgreSQL database
+- Flask-CORS for API security
+
+## User Personas
+
+Our platform is designed to serve diverse entrepreneur profiles:
+
+- [User Persona 1](https://github.com/user-attachments/files/18281193/User.Persona1.pdf)
+- [Persona 2](https://github.com/user-attachments/files/18281192/Persona.2.pdf)
+
+## Reference Data
+
+- [Women Empowerment Schemes SearchEngine](https://github.com/user-attachments/files/18281199/Women_Empowerment_Schemes_SearchEngine.xlsx)
+
+## Getting Started
+
+### Backend Setup
+
+```bash
+# Clone repository
+git clone <repository-url>
+cd <project-folder>/backend
+
+# Create virtual environment
+python -m venv env
+source env/bin/activate  # For Windows: env\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Configure environment variables
+# Create .env file with:
+# SECRET_KEY=your-secret-key
+# SQLALCHEMY_DATABASE_URI=postgresql://<user>:<password>@<host>:<port>/<database>
+
+# Run migrations
+flask db init
+flask db migrate
+flask db upgrade
+
+# Start server
+python app.py
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+### Frontend Setup
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+```bash
+# Navigate to frontend directory
+cd <project-folder>/frontend
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+# Install dependencies
+npm install
+
+# Start development server
+npm start
 ```
 
-Project Title
+## Team
 
-Business Resource Hub – A web application to empower users with resources and funding insights while offering a smooth and secure user experience.
-
----
-
-Project Overview
-
-The Business Resource Hub is a comprehensive platform that provides users with various resources, notifications, and insights for business empowerment. It includes features like user authentication, funding visualization, and resource directory management. Built with a robust backend using Flask and a dynamic frontend using React, this application ensures scalability and user-friendliness.
-
----
-UserPersonas
-[Persona 2.pdf](https://github.com/user-attachments/files/18281192/Persona.2.pdf)
-[User Persona1.pdf](https://github.com/user-attachments/files/18281193/User.Persona1.pdf)
-Data For Reference
-[Women_Empowerment_Schemes_SearchEngine.xlsx](https://github.com/user-attachments/files/18281199/Women_Empowerment_Schemes_SearchEngine.xlsx)
-
-
-
-Setup Instructions
-
-1. Clone the Repository:
-   ```bash
-   git clone <repository-url>
-   cd <project-folder>
-   ```
-
-2. Backend Setup:
-   - Navigate to the backend folder:
-     ```bash
-     cd backend
-     ```
-   - Create a virtual environment:
-     ```bash
-     python -m venv env
-     source env/bin/activate  # For Windows: env\Scripts\activate
-     ```
-   - Install dependencies:
-     ```bash
-     pip install -r requirements.txt
-     ```
-   - Set up the `.env` file:
-     - Add the following environment variables:
-       ```
-       SECRET_KEY=your-secret-key
-       SQLALCHEMY_DATABASE_URI=postgresql://<user>:<password>@<host>:<port>/<database>
-       ```
-   - Run database migrations:
-     ```bash
-     flask db init
-     flask db migrate
-     flask db upgrade
-     ```
-   - Start the backend server:
-     ```bash
-     python app.py
-     ```
-
-3. Frontend Setup:
-   - Navigate to the frontend folder:
-     ```bash
-     cd frontend
-     ```
-   - Install dependencies:
-     ```bash
-     npm install
-     ```
-   - Start the React application:
-     ```bash
-     npm start
-     ```
-
----
-
-Dependencies List
-
-Backend:
-- Flask
-- Flask-SQLAlchemy
-- Flask-Migrate
-- Flask-CORS
-- Python 3.x
-- PostgreSQL
-- JWT (PyJWT)
-
-Frontend:
-- React
-- TypeScript
-- React-Router-DOM
-- TailwindCSS
-- Lucide Icons
-
----
-
-Usage Examples
-
-- User Authentication: Sign up, log in, and manage your profile securely.
-- AIBusinessMentor helps people understand the growth of business ideas.
-- Resource Directory: Browse categorized resources for business needs.
-- Funding Visualization: View funding statistics and success stories.
-- Notifications: Stay updated with real-time notifications.
-
----
-
-Screenshots or GIFs
-
-Landing Page
-![image](https://github.com/user-attachments/assets/44813040-29ab-44c9-a61e-234b18ba1bd2)
-Community
-![image](https://github.com/user-attachments/assets/d639b605-115b-4aa8-bdb3-7c4da72da2de)
-Features
-![image](https://github.com/user-attachments/assets/cf9bedea-5791-4d8c-96c9-cbd8f5290c7e)
-About
-![image](https://github.com/user-attachments/assets/0f60a3a4-4361-4a05-8ffe-70bd0f640639)
-
-
-Dashboard
-![image](https://github.com/user-attachments/assets/b0161ec7-e615-4f3d-86e9-6693dc2c6b79)
-![image](https://github.com/user-attachments/assets/b0ab4c63-7c68-416a-b642-02545ef61530)
-
-
-
-Funding Visualization
-![image](https://github.com/user-attachments/assets/8420b7cb-5b88-4418-9ac2-b4891f52a4ea)
-![image](https://github.com/user-attachments/assets/2ff4e08d-92cf-4da5-a133-2cc744aeb5f2)
-![image](https://github.com/user-attachments/assets/72cfb73f-3848-41d4-948f-a22ebf63a6a6)
-ResourceDirectory
-![image](https://github.com/user-attachments/assets/70453bd1-5d00-4ebf-91cb-bb29bd916526)
-
-![image](https://github.com/user-attachments/assets/b2832f95-4d83-41fc-a94d-a868006ba78a)
-
-
-
-
-
----
-
-Team Member Details
-
-- Jashwanth Reddy (VAB) 
+- Jashwanth Reddy (VAB)
 - Nikhil Mamilla
 - Bindhu Sathwika
 - Sumanvitha
 - Rupa Sri
 
----
-
-Contributing
+## Contributing
 
 We welcome contributions to enhance this project. Feel free to fork the repository, create a new branch, and submit a pull request.
 
----
-
-License
+## License
 
 This project is licensed under the MIT License.
-
