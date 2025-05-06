@@ -9,6 +9,9 @@ import {
   Github,
   Twitter
 } from 'lucide-react';
+import screenshotImg from '../assets/images/Screenshot 2025-05-06 155711.png';
+import screenshotImg1 from '../assets/images/Screenshot 2025-05-06 155634.png';
+import screenshotImg2 from '../assets/images/Screenshot 2025-05-06 162923.png';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { useNavigate } from 'react-router-dom';
@@ -20,7 +23,7 @@ const AboutPage = () => {
     {
       name: 'Ajey Bharghava JashwanthReddy V',
       role: 'Founder & CEO',
-      image: '/api/placeholder/400/400',
+      image: screenshotImg2,
       bio: 'AI researcher with 10+ years experience in machine learning and a passion for increasing diversity in tech.',
       social: {
         linkedin: '#',
@@ -31,7 +34,7 @@ const AboutPage = () => {
     {
       name: 'Nikhil  Mamilla',
       role: 'CTO',
-      image: '/api/placeholder/400/400',
+      image: screenshotImg1,
       bio: 'Former Tech Lead at major AI companies, specializing in natural language processing and ethical AI development.',
       social: {
         linkedin: '#',
@@ -42,7 +45,7 @@ const AboutPage = () => {
     {
       name: 'Bindu Sathwika',
       role: 'Head of Community',
-      image: '/api/placeholder/400/400',
+      image: screenshotImg,
       bio: 'Community builder and advocate for women in STEM, with experience in leading global tech initiatives.',
       social: {
         linkedin: '#',
