@@ -192,7 +192,7 @@ ResourceDirectory
 
 Team Member Details
 
-- Jashwanth Reddy (VAB) – Developer and Project Lead.
+- Jashwanth Reddy (VAB) 
 - Nikhil Mamilla
 - Bindhu Sathwika
 - Sumanvitha
